@@ -14,7 +14,7 @@ In this project, we aim to tackle these challenges by bringing together a compre
 ## Contents
 
 * [View code used to process rare disease phenotypes from Orphanet](https://github.com/BHFDSC/CCU019_01/tree/main/code/00_orphanet_rd_selection)
-* [View the analysis code used in NHS Digital's TRE for England](https://github.com/BHFDSC/CCU019_01/tree/main/code)
+* [View the analysis code used in NHS England's TRE for England](https://github.com/BHFDSC/CCU019_01/tree/main/code)
 
 
 ## Project approval
