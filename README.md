@@ -1,4 +1,4 @@
-# A nationwide study of 331 rare diseases among 58 million individuals: prevalence, demographics and COVID-19 outcomes
+# Prevalence and demographics of 331 rare diseases and associated COVID-19-related mortality among 58 million individuals: a nationwide retrospective observational study
 
 **Johan H Thygesen, Huayu Zhang, Hanane Issa, Jinge Wu, Tuankasfee Hama, Ana Caterina Pinho Gomes, Tudor Groza, Sara Khalid, Tom Lumbers, Mevhibe Hocaoglu, Kamlesh Khunti, Rouven Priedon, Amitava Banerjee, Nikolas Pontikos, Chris Tomlinson, Ana Torralbo, Paul Taylor, Cathie Sudlow, Spiros Denaxas, Harry Hemingway, Honghan Wu, on behalf of the CVD-COVID-UK/COVID-IMPACT Consortium**
 
@@ -11,7 +11,7 @@ However, the majority of those living with rare diseases – around 5.8% of the 
 In this project, we aim to tackle these challenges by bringing together a comprehensive set of knowledge about rare diseases, and applying the most up to date data science technologies to use such knowledge and resources on CVD-COVID-UK datasets. In this way, we hope to develop a more accurate identification system for people living with rare diseases who are clinically vulnerable. We will also provide the much needed information on the risk of severe COVID-19 in people with rare diseases, hopefully leading to an improvement in their care by providing evidence on treatments that may work better for them.
 
 ## How to cite this work
-> Preprint available here: https://doi.org/10.1101/2023.10.12.23296948
+Published in The Lancet Digital Health: https://doi.org/10.1016/S2589-7500(24)00253-X (citation to follow)
 
 ## Contents
 
