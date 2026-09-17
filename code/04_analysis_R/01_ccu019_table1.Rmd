@@ -1,0 +1,183 @@
+---
+title: 'COVID-19 Rare disease Phenotype: characteristics of individuals'
+author: 'Chris Tomlinson, Johan Thygesen'
+date: 'Knitted on `r date()`'
+
+output:
+  html_document:
+    df_print: paged
+---
+
+**Description** 
+
+This notebook aggregates the data within `ccu019_paper_cohort_rare_disease` and stratifies by `severity` which represents a picture of the most severe healthcare presentation per patient (mutually-exclusive).
+  
+**Project(s)** CCU019
+
+**Author(s)** Chris Tomlinson, adapted to CCU019 by Johan Thygesen
+ 
+**Reviewer(s)** 
+ 
+**Date last updated** 2023-01-19
+ 
+**Date last reviewed** *NA*
+ 
+**Date last run** `r date()`
+ 
+**Data input**  
+* `ccu013_paper_table_one_56million_denominator`
+
+**Data output**  
+* Self-contained as the knitted `.html` file from this notebook
+
+**Software and versions** `SQL`, `R`
+ 
+**Packages and versions**
+
+```{r config}
+# Load libraries prior to sessionInfo() to ensure documented
+library(dplyr)
+library(tidyr)
+library(magrittr)
+library(stringr)
+library(tableone)
+library(DBI)
+
+setwd("/mnt/efs/dars_nic_391419_j3w9t_collab/CCU019")
+
+#warning("Requires authenticated connection to Spark saved as 'con'")
+source("/mnt/efs/j.thygesen/dbConnect.R")
+```
+
+```{r sessionInfo}
+sessionInfo()
+```
+
+
+## 1. Load & process cohort
+
+```{r load}
+# Load cohort
+if(!exists("cohort_small")){load("/mnt/efs/dars_nic_391419_j3w9t_collab/CCU019/data/ccu019_pop_cohort_noID.Rdata")}
+
+```
+
+
+```{r process}
+cohort_small %<>% 
+  mutate(sex = case_when(sex == '1' ~ 'Male', 
+                         sex == '2' ~ 'Female',
+                         sex == '9' ~ 'Unknown',
+                         sex == '0' ~ 'Unknown')
+         ) %>% 
+  # Age: currently no NAs (encoded as 999) or Unknowns, else
+  # mutate(age = na_if(age, 999)) %>% 
+  mutate(age = as.numeric(age)) %>% 
+  # Add binned ages, as per descriptive paper
+  mutate(age_bin = case_when(age < 18 ~ "Under 18",
+                           age <= 29 ~ "18-29",
+                           age <= 49 ~ "30-49",
+                           age <= 69 ~ "50-69",
+                           age >= 70 ~ "70 or over")
+       ) %>%  
+  select(-age) %>% 
+  # Factorise!
+  mutate(across(c(sex, 
+                  age_bin, 
+                  ethnic_group, 
+                  IMD_quintile, 
+                  high_risk),
+                as.factor)
+         ) %>% 
+  # re-level
+  mutate(ethnic_group = relevel(ethnic_group, ref='White')
+         ) %>% 
+  # Factorise outcomes to get counts & % instead of mean(sd)
+  mutate(across(c(severity,
+                  death_covid,
+                  death_all),
+                as.factor)
+         ) %>% 
+  # Re-order to desired structure for tables
+  relocate(death_covid,
+           death_all,
+           sex,
+           age_bin,
+           ethnic_group,
+           IMD_quintile,
+           high_risk )
+```
+
+## All 58 million: COVID & No COVID
+```{r population}
+cohort_small %>%
+  select(-severity, -rare_disease) %>% 
+  CreateTableOne(data=.) %>% 
+  print(., 
+        format.args = list(big.mark = ",")
+        ) %>% 
+  kableone(., 
+           format.args = list(big.mark = ",")
+           )
+```
+
+## All with rare disease
+```{r rare_disease}
+cohort_small %>%
+  filter(rare_disease == 1) %>%
+  select(-severity, -rare_disease) %>% 
+  CreateTableOne(data=.) %>% 
+  print(., 
+        format.args = list(big.mark = ",")
+        ) %>% 
+  kableone(., 
+           format.args = list(big.mark = ",")
+           )
+```
+
+## Stratified rare_disease by severity
+```{r rare_disease_severity}
+cohort_small %>%
+  filter(rare_disease == 1) %>%
+  filter(severity %in% c("2_hospitalised", "3_ventilatory_support"))  %>%
+  select(-rare_disease) %>% 
+  CreateTableOne(data=.,
+                 strata = "severity") %>% 
+  print(., 
+        format.args = list(big.mark = ",")
+        ) %>% 
+  kableone(., 
+           format.args = list(big.mark = ",")
+           )
+```
+
+## COVID ONLY
+```{r covid_only}
+cohort_small %>%
+  filter(rare_disease == 1) %>%
+  filter(severity != 'no_covid') %>% 
+  select(-severity, -rare_disease) %>% 
+  CreateTableOne(data=.) %>% 
+  print(., 
+        format.args = list(big.mark = ",")
+        ) %>% 
+  kableone(., 
+           format.args = list(big.mark = ",")
+           )
+```
+
+## ALL COVID Deaths ONLY
+As stratifying by severity only give those individuals where deaths was their only healthcare presentation, we want to show the demographics of all the COVID-19 deaths too.
+```{r all_covid_deaths}
+cohort_small %>%
+  filter(death_covid == 1) %>% 
+  filter(rare_disease == 1) %>%
+  select(-severity) %>% 
+  CreateTableOne(data=.) %>% 
+  print(., 
+        format.args = list(big.mark = ",")
+        ) %>% 
+  kableone(., 
+           format.args = list(big.mark = ",")
+           )
+```
